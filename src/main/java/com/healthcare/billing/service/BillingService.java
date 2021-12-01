@@ -1,14 +1,19 @@
 package com.healthcare.billing.service;
 
-import com.healthcare.billing.controller.model.ProcedureRate;
-import com.healthcare.billing.model.Procedure;
+import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.ICD10;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BillingService {
 
-    public ProcedureRate getProcedureRate(String id);
+    public List<ICD10> getBaseSearchICDCodes();
 
-    public List<Procedure> getAllProcedures();
+    public List<ICD10> getICDCodes(String search);
+
+    public Map<String, List<CPT>> getCPTCodes();
+
+    public List<CPT> getCPTCodes(String search);
 
 }

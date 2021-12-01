@@ -1,7 +1,7 @@
 package com.healthcare.billing.controller;
 
-import com.healthcare.billing.controller.model.ProcedureRate;
-import com.healthcare.billing.model.Procedure;
+import com.google.gson.Gson;
+import com.healthcare.billing.model.ICD10;
 import com.healthcare.billing.service.BillingService;
 import com.healthcare.billing.service.BillingServiceImpl;
 import org.springframework.web.bind.annotation.*;
@@ -9,18 +9,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/billing")
 public class BillingController {
 
     private BillingService billingService = new BillingServiceImpl();
 
     @RequestMapping("/procedures/{procedureId}/rates")
-    public ProcedureRate getRate(@PathVariable String procedureId) {
-        return billingService.getProcedureRate(procedureId);
+    public String getRate(@PathVariable String procedureId) {
+        return "{\"message\" : \"This API is under construction.\"}";
     }
 
-    @RequestMapping("/procedures")
-    public List<Procedure> getProcedures() {
-        return billingService.getAllProcedures();
+    @RequestMapping("/icd10codes")
+    public String getICD10Codes() {
+        List<ICD10> codes = billingService.getBaseSearchICDCodes();
+        return new Gson().toJson(codes);
+    }
+
+    @RequestMapping("/icd10codes/{code}")
+    public String getICD10CodesSearch(@PathVariable String code) {
+        List<ICD10> codes = billingService.getICDCodes(code);
+        return new Gson().toJson(codes);
+    }
+
+    @RequestMapping("/diagnose")
+    public List<ICD10> getDiagnoses() {
+        return billingService.getBaseSearchICDCodes();
+    }
+
+    @RequestMapping("/diagnose/{code}")
+    public List<ICD10> getDiagnoses(@PathVariable String code) {
+        return billingService.getICDCodes(code);
     }
 
     @RequestMapping("/claims")

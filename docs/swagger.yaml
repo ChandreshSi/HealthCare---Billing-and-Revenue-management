@@ -1,4 +1,6 @@
 swagger: "2.0"
+host: localhost:8080
+basePath: /billing
 info:
   description: "Healtcare system Billing APIs."
   version: "1.0.0"
@@ -6,7 +8,7 @@ info:
   contact:
     email: "cs62@njit.edu"
 tags:
-- name: "procedures"
+- name: "codes"
   description: "Everything about procedures and rates"
 - name: "claims"
   description: "Billing claims"
@@ -14,13 +16,13 @@ schemes:
 - "https"
 - "http"
 paths:
-  /procedures:
+  /icd10codes:
     get:
       tags:
-      - "procedures"
-      summary: "List of all the procedures available in the system"
-      description: "Returns the List all the procedures codes and information (CPT, HCPCS codes) paired with diagnosis (ICD codes)"
-      operationId: "procedures"
+      - "codes"
+      summary: "List the range of ICD-10 codes to search from"
+      description: "Returns the range search list of ICD-10 codes"
+      operationId: "getICD10Codes"
       responses:
         "405":
           description: "Invalid input"
@@ -29,7 +31,67 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/Procedure"
+              $ref: "#/definitions/ICD10"
+  /icd10codes/{code}:
+    get:
+      tags:
+      - "codes"
+      summary: "Returns the list of ICD-10 codes filtered by the {code}."
+      description: "List the range of ICD-10 codes based on the code provided in the path. The code could be a range string provided as a code."
+      operationId: "getICD10CodesBySearch"
+      parameters:
+      - name: "code"
+        in: "path"
+        description: "Search string. This could be code range/group or the code. This has to be same as a code provided in above API or this API"
+        required: true
+        type: "string"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ICD10"
+  /cptCodes:
+    get:
+      tags:
+      - "codes"
+      summary: "List all the CPT codes with the grouping"
+      description: "Returns list of CPT codes with grouping"
+      operationId: "getCPTCodes"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/CPTGroup"
+  /cptCodes/{groupId}:
+    get:
+      tags:
+      - "codes"
+      summary: "List all the CPT codes for the given group id."
+      description: "Returns all the CPT codes for the given group id."
+      operationId: "getCPTCodesBySearch"
+      parameters:
+      - name: "groupId"
+        in: "path"
+        description: "Group id for the code"
+        required: true
+        type: "string"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/CPT"
   /procedures/{procedureId}/rates:
     get:
       tags:
@@ -148,6 +210,48 @@ securityDefinitions:
       write:pets: "modify pets in your account"
       read:pets: "read your pets"
 definitions:
+  ICD10:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "object id"
+      code:
+        type: "string"
+        description: "This could represent the ICD-10 code or a search string/grouping"
+      description:
+        type: "string"
+        description: "Information about the code."
+      parentId:
+        type: "string"
+        description: "This could be empty or the parent id of the object which could be an actual code of a search string/grouping"
+  CPT:
+    type: object
+    properties:
+      id:
+        type: "string"
+        description: "object id"
+      code:
+        type: "string"
+        description: "CPT code"
+      description:
+        type: "string"
+        description: "information about the code"
+  CPTGroup:
+    type: object
+    properties:
+      id:
+        type: "string"
+        description: "object id"
+      type:
+        type: "string"
+        description: "Type of grouping"
+      description:
+        type: "string"
+        description: "information about the grouping"
+      additionalInfo:
+        type: "string"
+        description: "Any additional info about the grouping"
   ProcedureRate:
     type: object
     properties:

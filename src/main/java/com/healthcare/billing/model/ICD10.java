@@ -48,8 +48,4 @@ public class ICD10 {
                 ", parentId='" + parentId + '\'' +
                 '}';
     }
-
-    public boolean isEmpty() {
-        return this.id == null && this.code == null && this.description == null && this.parentId == null;
-    }
 }

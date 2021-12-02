@@ -1,6 +1,7 @@
 package com.healthcare.billing.repository;
 
 import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.model.ICD10;
 
 import java.util.List;
@@ -12,8 +13,8 @@ public interface BillingRepository {
 
     public List<ICD10> getICDCodes(String search);
 
-    public Map<String, List<CPT>> getCPTCodes();
+    public List<CPTGroup> getCPTCodes();
 
-    public List<CPT> getCPTCodes(String search);
+    public List<CPT> getCPTCodes(String groupId);
 
 }

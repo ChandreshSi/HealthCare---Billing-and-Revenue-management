@@ -1,6 +1,8 @@
 package com.healthcare.billing.controller;
 
 import com.google.gson.Gson;
+import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.model.ICD10;
 import com.healthcare.billing.service.BillingService;
 import com.healthcare.billing.service.BillingServiceImpl;
@@ -31,14 +33,16 @@ public class BillingController {
         return new Gson().toJson(codes);
     }
 
-    @RequestMapping("/diagnose")
-    public List<ICD10> getDiagnoses() {
-        return billingService.getBaseSearchICDCodes();
+    @RequestMapping("/cptCodes")
+    public String getCPTCodes() {
+        List<CPTGroup> codes = billingService.getCPTCodes();
+        return new Gson().toJson(codes);
     }
 
-    @RequestMapping("/diagnose/{code}")
-    public List<ICD10> getDiagnoses(@PathVariable String code) {
-        return billingService.getICDCodes(code);
+    @RequestMapping("/cptCodes/{groupId}")
+    public String getCPTCodes(@PathVariable String groupId) {
+        List<CPT> codes = billingService.getCPTCodes(groupId);
+        return new Gson().toJson(codes);
     }
 
     @RequestMapping("/claims")

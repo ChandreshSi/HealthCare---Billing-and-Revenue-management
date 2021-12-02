@@ -4,7 +4,6 @@ public class CPT {
     private String id;
     private String code;
     private String description;
-    private String cptGroupId;
 
     public String getId() {
         return id;
@@ -30,15 +29,4 @@ public class CPT {
         this.description = description;
     }
 
-    public String getCptGroupId() {
-        return cptGroupId;
-    }
-
-    public void setCptGroupId(String cptGroupId) {
-        this.cptGroupId = cptGroupId;
-    }
-
-    public boolean isEmpty() {
-        return this.id == null && this.code == null && this.cptGroupId == null && this.description == null;
-    }
 }

@@ -1,5 +1,6 @@
 package com.healthcare.billing.service;
 
+import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.repository.BillingRepository;
 import com.healthcare.billing.repository.BillingRepositoryImpl;
 import com.healthcare.billing.model.CPT;
@@ -22,12 +23,12 @@ public class BillingServiceImpl implements BillingService {
     }
 
     @Override
-    public Map<String, List<CPT>> getCPTCodes() {
+    public List<CPTGroup> getCPTCodes() {
         return repository.getCPTCodes();
     }
 
     @Override
-    public List<CPT> getCPTCodes(String search) {
-        return repository.getCPTCodes(search);
+    public List<CPT> getCPTCodes(String groupId) {
+        return repository.getCPTCodes(groupId);
     }
 }

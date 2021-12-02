@@ -1,6 +1,7 @@
 package com.healthcare.billing.repository;
 
 import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.model.ICD10;
 import com.healthcare.billing.repository.json.JSONCodeManagement;
 
@@ -20,12 +21,12 @@ public class BillingRepositoryImpl implements BillingRepository {
     }
 
     @Override
-    public Map<String, List<CPT>> getCPTCodes() {
+    public List<CPTGroup> getCPTCodes() {
         return JSONCodeManagement.getInstance().getCPTCodes();
     }
 
     @Override
-    public List<CPT> getCPTCodes(String search) {
-        return JSONCodeManagement.getInstance().getCPTCodes(search);
+    public List<CPT> getCPTCodes(String groupId) {
+        return JSONCodeManagement.getInstance().getCPTCodes(groupId);
     }
 }

@@ -1,11 +1,14 @@
 package com.healthcare.billing.model;
 
+import java.util.List;
+
 public class ICD10 {
 
     private String id;
     private String code;
     private String description;
     private String parentId;
+    private List<ICD10> subCodes;
 
     public String getId() {
         return id;
@@ -37,6 +40,14 @@ public class ICD10 {
 
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+
+    public List<ICD10> getSubCodes() {
+        return subCodes;
+    }
+
+    public void setSubCodes(List<ICD10> subCodes) {
+        this.subCodes = subCodes;
     }
 
     @Override

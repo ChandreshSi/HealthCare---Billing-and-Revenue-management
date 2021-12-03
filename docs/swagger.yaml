@@ -32,7 +32,7 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/ICD10"
-  /icd10codes/{code}:
+  /icd10codes/{icd10codeId}:
     get:
       tags:
       - "codes"
@@ -40,7 +40,7 @@ paths:
       description: "List the range of ICD-10 codes based on the code provided in the path. The code could be a range string provided as a code."
       operationId: "getICD10CodesBySearch"
       parameters:
-      - name: "code"
+      - name: "icd10codeId"
         in: "path"
         description: "Search string. This could be code range/group or the code. This has to be same as a code provided in above API or this API"
         required: true
@@ -92,15 +92,29 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/CPT"
-  /procedures/{procedureId}/rates:
+  /cptCodes/rates:
     get:
       tags:
-      - "procedures"
-      summary: "Rate of a procedure"
-      description: "Returns the rate of a procedure with id {procedureId}."
+      - "codes"
+      summary: "Rate of a procedure."
+      description: "Returns the rate of a procedure with id {cptCodesId}."
+      operationId: "procedureRates"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/CPTCodeRate"
+        "400":
+          description: "Invalid status value"
+  /cptCodes/rates/{cptCodesId}:
+    get:
+      tags:
+      - "codes"
+      summary: "Rate of a procedure."
+      description: "Returns the rate of a procedure with id {cptCodesId}."
       operationId: "procedureRate"
       parameters:
-      - name: "procedureId"
+      - name: "cptCodesId"
         in: "path"
         description: "Procedure Id"
         required: true
@@ -109,7 +123,7 @@ paths:
         "200":
           description: "successful operation"
           schema:
-            $ref: "#/definitions/ProcedureRate"
+            $ref: "#/definitions/CPTCodeRate"
         "400":
           description: "Invalid status value"
   /claims:
@@ -252,17 +266,25 @@ definitions:
       additionalInfo:
         type: "string"
         description: "Any additional info about the grouping"
-  ProcedureRate:
+  Currency:
+    type: object
+    properties:
+      identifier:
+        type: string
+      symbol:
+        type: string
+  CPTCodeRate:
     type: object
     properties:
       id:
         type: "string"
-        description: "rate id"
-      procedureId:
-        type: string
-        description: "Id of the procedure"
+        description: "object id"
+      cptCode:
+        "$ref": "#/definitions/CPT"
       rate:
         type: integer
+      currency:
+        "$ref": "#/definitions/Currency"
   Diagnosis:
     type: "object"
     properties:

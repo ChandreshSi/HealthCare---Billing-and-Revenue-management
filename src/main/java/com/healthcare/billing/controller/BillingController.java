@@ -2,6 +2,7 @@ package com.healthcare.billing.controller;
 
 import com.google.gson.Gson;
 import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.CPTCodeRate;
 import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.model.ICD10;
 import com.healthcare.billing.service.BillingService;
@@ -16,13 +17,23 @@ public class BillingController {
 
     private BillingService billingService = new BillingServiceImpl();
 
-    @RequestMapping("/procedures/{procedureId}/rates")
-    public String getRate(@PathVariable String procedureId) {
-        return "{\"message\" : \"This API is under construction.\"}";
+    @RequestMapping("/cptCodes/rates")
+    public String getRates() {
+        System.out.println("getRates starts");
+        List<CPTCodeRate> codes = billingService.getCPTCodeRates();
+        return new Gson().toJson(codes);
+    }
+
+    @RequestMapping("/cptCodes/rates/{cptCodesId}")
+    public String getRate(@PathVariable String cptCodesId) {
+        System.out.println("getRate starts");
+        CPTCodeRate code = billingService.getCPTCodeRate(cptCodesId);
+        return new Gson().toJson(code);
     }
 
     @RequestMapping("/icd10codes")
     public String getICD10Codes() {
+        System.out.println("getICD10Codes starts");
         List<ICD10> codes = billingService.getBaseSearchICDCodes();
         return new Gson().toJson(codes);
     }

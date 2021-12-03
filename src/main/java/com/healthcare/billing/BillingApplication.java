@@ -1,5 +1,7 @@
 package com.healthcare.billing;
 
+import com.healthcare.billing.model.CPTCodeRate;
+import com.healthcare.billing.repository.jdbc.JDBCRepositoryImpl;
 import com.healthcare.billing.repository.json.JSONCodeManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

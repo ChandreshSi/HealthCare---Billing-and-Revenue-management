@@ -1,6 +1,7 @@
 package com.healthcare.billing.service;
 
 import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.CPTCodeRate;
 import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.model.ICD10;
 
@@ -16,5 +17,9 @@ public interface BillingService {
     public List<CPTGroup> getCPTCodes();
 
     public List<CPT> getCPTCodes(String groupId);
+
+    public List<CPTCodeRate> getCPTCodeRates();
+
+    public CPTCodeRate getCPTCodeRate(String code);
 
 }

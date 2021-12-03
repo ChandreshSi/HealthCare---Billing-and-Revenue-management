@@ -2,17 +2,14 @@ package com.healthcare.billing.repository.jdbc;
 
 import com.healthcare.billing.exception.ConnectionException;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class JDBCConnection {
-
-    private static final String LOCATION = "build/resources/main/";
+    
     private static JDBCConnection jdbcConnection;
 
     private String url;
@@ -22,10 +19,13 @@ public class JDBCConnection {
     private JDBCConnection() {
         Properties properties = new Properties();
         try {
-            properties.load(new FileReader(new File(LOCATION + "application.properties")));
+            InputStream in = getClass().getResourceAsStream("/application.properties");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            properties.load(reader);
             this.url = (String) properties.get("jdbc.url");
             this.username = (String) properties.get("jdbc.username");
             this.password = (String) properties.get("jdbc.password");
+            System.out.println("Connection successful");
         } catch (IOException e) {
             e.printStackTrace();
         }

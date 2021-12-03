@@ -16,7 +16,8 @@ public class JSONCodeManager {
     private final List<ICD10> baseSearchICDCodes;
     private final Map<String, List<ICD10>> icdCodes;
     private final List<CPTGroup> cptGroups;
-    private final Map<String, List<CPT>> cptMap;
+    private final Map<String, List<CPT>> cptGroupMap;
+    private final Map<String, CPT> cptMap;
 
     private static JSONCodeManager codeManagement;
 
@@ -24,6 +25,7 @@ public class JSONCodeManager {
         this.baseSearchICDCodes = new LinkedList<>();
         this.icdCodes = new LinkedHashMap<>();
         this.cptGroups = new LinkedList<>();
+        this.cptGroupMap = new LinkedHashMap<>();
         this.cptMap = new LinkedHashMap<>();
         initialize();
     }
@@ -48,7 +50,15 @@ public class JSONCodeManager {
     }
 
     public List<CPT> getCPTCodes(String groupId) {
-        return this.cptMap.get(groupId);
+        return this.cptGroupMap.get(groupId);
+    }
+
+    public Map<String, CPT> getCPTMap() {
+        return this.cptMap;
+    }
+
+    public CPT getCPT(String code) {
+        return this.cptMap.get(code);
     }
 
     private void initialize() {
@@ -121,11 +131,12 @@ public class JSONCodeManager {
         }.getType(), "/cpt.json");
         for (String key : CPTs.keySet()) {
             CPTGroup group = createCPTGroup(key);
-            this.cptMap.put(group.getId(), new LinkedList<>());
+            this.cptGroupMap.put(group.getId(), new LinkedList<>());
             List<CPT> cptCodes = new LinkedList<>();
             for (String cptKey : CPTs.get(key).keySet()) {
                 CPT cpt = createCPT(cptKey, CPTs.get(key).get(cptKey));
-                this.cptMap.get(group.getId()).add(cpt);
+                this.cptGroupMap.get(group.getId()).add(cpt);
+                this.cptMap.put(cpt.getCode(), cpt);
                 cptCodes.add(cpt);
             }
             group.setCodes(cptCodes);

@@ -29,4 +29,12 @@ public class CPT {
         this.description = description;
     }
 
+    @Override
+    public String toString() {
+        return "CPT{" +
+                "id='" + id + '\'' +
+                ", code='" + code + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

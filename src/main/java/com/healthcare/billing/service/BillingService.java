@@ -1,9 +1,6 @@
 package com.healthcare.billing.service;
 
-import com.healthcare.billing.model.CPT;
-import com.healthcare.billing.model.CPTCodeRate;
-import com.healthcare.billing.model.CPTGroup;
-import com.healthcare.billing.model.ICD10;
+import com.healthcare.billing.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -21,5 +18,17 @@ public interface BillingService {
     public List<CPTCodeRate> getCPTCodeRates();
 
     public CPTCodeRate getCPTCodeRate(String code);
+
+    public List<CPTGroup> getCptGroupCodesWithRate();
+
+    public String createClaim(Claim claim);
+
+    public Claim getClaim(String id);
+
+    public void processClaim(String claimId);
+
+    public Statement getStatement(String claimId);
+
+    public void settleClaim(String claimId);
 
 }

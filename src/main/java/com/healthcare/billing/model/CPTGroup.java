@@ -8,6 +8,7 @@ public class CPTGroup {
     private String description;
     private String additionalInfo;
     private List<CPT> codes;
+    private List<CPTCodeRate> cptCodeRates;
 
     public String getId() {
         return id;
@@ -47,5 +48,13 @@ public class CPTGroup {
 
     public void setCodes(List<CPT> codes) {
         this.codes = codes;
+    }
+
+    public List<CPTCodeRate> getCptCodeRates() {
+        return cptCodeRates;
+    }
+
+    public void setCptCodeRates(List<CPTCodeRate> cptCodeRates) {
+        this.cptCodeRates = cptCodeRates;
     }
 }

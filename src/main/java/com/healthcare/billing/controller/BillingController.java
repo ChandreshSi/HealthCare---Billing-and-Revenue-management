@@ -1,15 +1,18 @@
 package com.healthcare.billing.controller;
 
 import com.google.gson.Gson;
-import com.healthcare.billing.model.CPT;
-import com.healthcare.billing.model.CPTCodeRate;
-import com.healthcare.billing.model.CPTGroup;
-import com.healthcare.billing.model.ICD10;
+import com.google.gson.reflect.TypeToken;
+import com.healthcare.billing.controller.model.CreateClaimRequest;
+import com.healthcare.billing.model.*;
 import com.healthcare.billing.service.BillingService;
 import com.healthcare.billing.service.BillingServiceImpl;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/billing")
@@ -46,7 +49,8 @@ public class BillingController {
 
     @RequestMapping("/cptCodes")
     public String getCPTCodes() {
-        List<CPTGroup> codes = billingService.getCPTCodes();
+//        List<CPTGroup> codes = billingService.getCPTCodes();
+        List<CPTGroup> codes = billingService.getCptGroupCodesWithRate();
         return new Gson().toJson(codes);
     }
 
@@ -58,17 +62,65 @@ public class BillingController {
 
     @RequestMapping("/claims")
     public String getClaims() {
+        System.out.println("getClaims starts...");
         return "{\"message\" : \"This API is under construction.\"}";
     }
 
     @RequestMapping("/claims/{claimId}")
-    public String getClaim(@PathVariable String claimId) {
-        return "{\"message\" : \"This API is under construction.\"}";
+    public ResponseEntity<String> getClaim(@PathVariable String claimId) {
+        System.out.println("getClaim starts...");
+        try {
+            Claim claim = billingService.getClaim(claimId);
+            return ResponseEntity.status(HttpStatus.OK).body(new Gson().toJson(claim));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"errorMessage\" : \" " + e.getCause().toString() + " \"}");
+        }
     }
 
-    @RequestMapping(value = "/claims/{claimId}", method = RequestMethod.POST)
-    public String createClaim(@PathVariable String claimId) {
-        return "{\"message\" : \"This API is under construction.\"}";
+    @RequestMapping(value = "/claims", method = RequestMethod.POST)
+    public ResponseEntity<String> createClaim(@RequestBody String body) {
+        System.out.println("createClaim starts...");
+        Gson gson = new Gson();
+        Claim claim = gson.fromJson(body, Claim.class);
+        try {
+            String id = billingService.createClaim(claim);
+            return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getCause().toString());
+        }
+    }
+
+    @RequestMapping(value = "/claims/{claimId}/actions/process", method = RequestMethod.POST)
+    public ResponseEntity<String> processClaim(@PathVariable String claimId) {
+        System.out.println("processClaim starts...");
+        try {
+            billingService.processClaim(claimId);
+            return ResponseEntity.status(HttpStatus.OK).body("\"message:\": \"Success\"");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getCause().toString());
+        }
+    }
+
+    @RequestMapping(value = "/claims/{claimId}/actions/generateStatement", method = RequestMethod.POST)
+    public ResponseEntity<String> getStatement(@PathVariable String claimId) {
+        System.out.println("processClaim starts...");
+        try {
+            Statement statement = billingService.getStatement(claimId);
+            return ResponseEntity.status(HttpStatus.OK).body(new Gson().toJson(statement));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("\"message\":\"" + e.getMessage() + "\"");
+        }
+    }
+
+    @RequestMapping(value = "/claims/{claimId}/actions/settle", method = RequestMethod.POST)
+    public ResponseEntity<String> settleClaim(@PathVariable String claimId) {
+        System.out.println("processClaim starts...");
+        try {
+            billingService.settleClaim(claimId);
+            return ResponseEntity.status(HttpStatus.OK).body("\"message\": \"success\"");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getCause().toString());
+        }
     }
 
     @RequestMapping(value = "/claims/{claimId}", method = RequestMethod.PUT)

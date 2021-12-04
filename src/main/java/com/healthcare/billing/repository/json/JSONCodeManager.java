@@ -3,6 +3,7 @@ package com.healthcare.billing.repository.json;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.CPTCodeRate;
 import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.model.ICD10;
 import com.healthcare.billing.repository.model.ICD10Code;

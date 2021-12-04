@@ -1,12 +1,12 @@
 package com.healthcare.billing.repository;
 
-import com.healthcare.billing.model.CPT;
-import com.healthcare.billing.model.CPTCodeRate;
-import com.healthcare.billing.model.CPTGroup;
-import com.healthcare.billing.model.ICD10;
+import com.healthcare.billing.exception.ConnectionException;
+import com.healthcare.billing.model.*;
+import com.healthcare.billing.repository.jdbc.JDBCConnection;
 import com.healthcare.billing.repository.jdbc.JDBCRepositoryImpl;
 import com.healthcare.billing.repository.json.JSONCodeManager;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class BillingRepositoryImpl implements BillingRepository {
@@ -43,4 +43,40 @@ public class BillingRepositoryImpl implements BillingRepository {
         List<CPTCodeRate> codes = repository.getCPTRates(code);
         return codes.get(0);
     }
+
+    @Override
+    public String createClaim(Claim claim) {
+        return repository.createClaim(claim);
+    }
+
+    @Override
+    public Claim getClaim(String id) {
+        return repository.getClaim(id);
+    }
+
+    @Override
+    public void addTransaction(Transaction transaction) {
+        repository.addTransaction(transaction);
+    }
+
+    @Override
+    public void updateClaim(Claim claim) {
+        repository.updateClaim(claim);
+    }
+
+    @Override
+    public List<Transaction> getTransactions(Claim claim) {
+        return repository.getTransactions(claim);
+    }
+
+    @Override
+    public List<Claim> getClaim(Claim claim) {
+        return repository.getClaim(claim);
+    }
+
+    @Override
+    public Currency getCurrency(String identifier) {
+        return repository.getCurrency(identifier);
+    }
+
 }

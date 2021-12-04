@@ -1,5 +1,5 @@
 swagger: "2.0"
-host: ec2-18-223-151-191.us-east-2.compute.amazonaws.com:8080
+host: localhost:8080
 basePath: /billing
 info:
   description: "Healtcare system Billing APIs."
@@ -142,6 +142,22 @@ paths:
               $ref: "#/definitions/Claim"
         "400":
           description: "Invalid tag value"
+    post:
+      tags:
+      - "claims"
+      summary: "Creates claim"
+      description: "Creates claim based on the ICD and CPT codes provided for a given patient"
+      operationId: "createClaim"
+      parameters:
+        - in: body
+          name: "CreateClaimRequest"
+          schema:
+            $ref: "#/definitions/CreateClaimRequest"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "Successful"
   /claims/{claimId}:
     get:
       tags:
@@ -164,21 +180,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Pet not found"
-    post:
-      tags:
-      - "claims"
-      summary: "Creates a claim"
-      description: ""
-      operationId: "createClaim"
-      parameters:
-      - name: "claimId"
-        in: "path"
-        description: "ID of claim that needs to be updated"
-        required: true
-        type: "string"
-      responses:
-        "405":
-          description: "Invalid input"
     put:
       tags:
       - "claims"
@@ -199,7 +200,25 @@ paths:
       - "claims"
       summary: "Deletes a claim"
       description: ""
-      operationId: "deletePet"
+      operationId: "deleteClaim"
+      parameters:
+      - name: "claimId"
+        in: "path"
+        description: "ID of pet that needs to be updated"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Not found"
+  /claims/{claimId}/actions/process:
+    post:
+      tags:
+        - "claims"
+      summary: "Process a claim"
+      description: "Process a claim"
+      operationId: "processClaim"
       parameters:
       - name: "claimId"
         in: "path"
@@ -211,18 +230,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Pet not found"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-securityDefinitions:
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-    flow: "implicit"
-    scopes:
-      write:pets: "modify pets in your account"
-      read:pets: "read your pets"
 definitions:
   ICD10:
     type: "object"
@@ -236,9 +243,10 @@ definitions:
       description:
         type: "string"
         description: "Information about the code."
-      parentId:
-        type: "string"
-        description: "This could be empty or the parent id of the object which could be an actual code of a search string/grouping"
+      subCodes:
+        type: "array"
+        items:
+          "$ref": "#/definitions/ICD10"
   CPT:
     type: object
     properties:
@@ -285,37 +293,19 @@ definitions:
         type: integer
       currency:
         "$ref": "#/definitions/Currency"
-  Diagnosis:
-    type: "object"
+  CreateClaimRequest:
+    type: object
     properties:
-      id:
-        type: "string"
-        description: "diagnosis id"
-      code:
-        type: "string"
-        description: "codes for the diagnosis"
-      description:
-        type: "string"
-        description: "description for the diagnosis"
-  Procedure:
-    type: "object"
-    properties:
-      id:
-        type: "string"
-        description: "procedure id"
-      codingType:
-        type: "string"
-        enum:
-        - "CPT"
-        - "HCPCS"
-      diagnosisCode:
-        $ref: "#/definitions/Diagnosis"
-      code:
-        type: "string"
-        description: "codes for the procedure"
-      description:
-        type: "string"
-        description: "description for the procedure"
+      cptCodes:
+        type: array
+        items:
+          "$ref": "#/definitions/CPTCodeRate"
+      icd10Codes:
+        type: array
+        items:
+          "$ref": "#/definitions/ICD10"
+      patientId:
+        type: string
   Claim:
     type: "object"
     required:
@@ -325,23 +315,20 @@ definitions:
       id:
         type: "string"
         description: "claim id"
+      cptCodes:
+        type: "array"
+        items:
+          $ref: "#/definitions/CPT"
+      icd10Codes:
+        type: "array"
+        items:
+          $ref: "#/definitions/ICD10"
       patientId:
         type: "string"
-        description: "patient id"
-      insuranceId:
+      additionalInfo:
         type: "string"
-        description: "insurance detail id"
-      procedures:
-        type: "array"
-        description: "list of procedures taken"
-        items:
-          $ref: "#/definitions/Procedure"
-      dateCreated:
-        type: "string"
-        description: "ISO format date created"
-      dateUpdated:
-        type: "string"
-        description: "ISO format date updated"
+      amount:
+        type: "number"
       status:
         type: "string"
         description: "status of the claim"
@@ -352,3 +339,12 @@ definitions:
         - "denied"
         - "sent_for_adjudication"
         - "deleted"
+      currency:
+        "$ref": "#/definitions/Currency"
+      timeCreated:
+        type: "string"
+        description: "ISO format date created"
+      timeUpdated:
+        type: "string"
+        description: "ISO format date created"
+        

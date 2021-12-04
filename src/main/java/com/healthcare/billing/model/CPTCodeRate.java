@@ -1,16 +1,16 @@
 package com.healthcare.billing.model;
 
 public class CPTCodeRate {
-    private int id;
+    private String id;
     private CPT cptCode;
     private int rate;
     private Currency currency;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -39,7 +39,7 @@ public class CPTCodeRate {
     }
 
     public boolean isEmpty() {
-        return this.id == 0 && this.cptCode == null && this.currency == null && this.rate == 0;
+        return this.id == null && this.cptCode == null && this.currency == null && this.rate == 0;
     }
 
     @Override

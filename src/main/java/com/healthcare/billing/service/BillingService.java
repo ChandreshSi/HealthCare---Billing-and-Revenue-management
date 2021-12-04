@@ -31,4 +31,6 @@ public interface BillingService {
 
     public void settleClaim(String claimId);
 
+    public List<Claim> getClaim(Claim claim);
+
 }

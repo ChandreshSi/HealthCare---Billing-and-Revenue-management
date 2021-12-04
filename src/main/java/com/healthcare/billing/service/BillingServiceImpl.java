@@ -120,6 +120,11 @@ public class BillingServiceImpl implements BillingService {
         }
     }
 
+    @Override
+    public List<Claim> getClaim(Claim claim) {
+        return repository.getClaim(claim);
+    }
+
     public List<String> getInsuranceDetails(String patientId) {
         // mock
         List<String> insurer = new LinkedList<>();
@@ -130,6 +135,8 @@ public class BillingServiceImpl implements BillingService {
     }
 
     public void processClaim(Claim claim, String insurerId) {
+        if (claim.getStatus() == Status.PROCESSED)
+            throw new IllegalArgumentException("The clain is already processed! Claim id: " + claim.getId());
         // send claim to insurer
         Status status = sendToInsurer(claim, insurerId);
         // update status to SEND_FOR_ADJUDICATION

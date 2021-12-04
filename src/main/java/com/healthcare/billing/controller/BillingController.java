@@ -61,9 +61,14 @@ public class BillingController {
     }
 
     @RequestMapping("/claims")
-    public String getClaims() {
+    public ResponseEntity<String> getClaims() {
         System.out.println("getClaims starts...");
-        return "{\"message\" : \"This API is under construction.\"}";
+        try {
+            List<Claim> claims = billingService.getClaim(new Claim());
+            return ResponseEntity.status(HttpStatus.OK).body(new Gson().toJson(claims));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"errorMessage\" : \" " + e.getCause().toString() + " \"}");
+        }
     }
 
     @RequestMapping("/claims/{claimId}")

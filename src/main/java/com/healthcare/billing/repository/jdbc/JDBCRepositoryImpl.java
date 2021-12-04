@@ -158,7 +158,7 @@ public class JDBCRepositoryImpl {
             conn = JDBCConnection.getInstance().getConnection();
             Map<Integer, Object> parameters = new HashMap<>();
             String condition = buildConditionClaim(claim, parameters);
-            if (condition != null) {
+            if (condition != null && !condition.equals("")) {
                 sql.append(" WHERE ");
                 sql.append(condition);
             }
@@ -269,6 +269,7 @@ public class JDBCRepositoryImpl {
         String condition = buildUpdateCondition(claim, parameters);
         if (condition != null) {
             sql.append(condition);
+            sql.append(" WHERE ID = ?");
             Connection connection = null;
             try {
                 connection = JDBCConnection.getInstance().getConnection();
@@ -281,6 +282,7 @@ public class JDBCRepositoryImpl {
                         ps.setString(key, (String) o);
                     }
                 }
+                ps.setString(parameters.size() + 1, claim.getId());
                 ps.executeUpdate();
             } catch (ConnectionException e) {
                 e.printStackTrace();
@@ -336,7 +338,7 @@ public class JDBCRepositoryImpl {
         int parameterIndex = 1;
         if (claim.getStatus() != null) {
             sb.append(" STATUS = ? ");
-            parameter.put(parameterIndex, Integer.valueOf(claim.getStatus().getStatus()));
+            parameter.put(parameterIndex++, Integer.valueOf(claim.getStatus().getStatus()));
         }
         if (parameterIndex == 2) {
             sb.append(", TIME_UPDATED = NOW()");

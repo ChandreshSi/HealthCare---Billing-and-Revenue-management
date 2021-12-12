@@ -4,6 +4,7 @@ import com.healthcare.billing.controller.model.StatementView;
 import com.healthcare.billing.model.Claim;
 import com.healthcare.billing.model.Transaction;
 
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.*;
 
@@ -45,9 +46,9 @@ public class Mock {
         Map<String, String> message = new LinkedHashMap<>();
         message.put("message", "A claim is generated for patient: " + claim.getPatientId());
         message.put("amount", String.valueOf(claim.getAmount()));
-        String url = "http://" + InetAddress.getLocalHost().getHostName() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
+        String url = "http://" + getIP() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
         message.put("comment", "A complete statement can be downloaded from: POST " + url);
-        Client.getInstance().makeRequest("http://" + InetAddress.getLocalHost().getHostName() + clientURL, message);
+        Client.getInstance().makeRequest("http://" + getIP() + clientURL, message);
     }
 
     public static void sendNotification(String clientURL, Claim claim) throws Exception {
@@ -55,9 +56,9 @@ public class Mock {
         message.put("message", "A claim is update/created for you - patientID: " + claim.getPatientId());
         message.put("amount", String.valueOf(claim.getAmount()));
         message.put("status", String.valueOf(claim.getStatus().toString()));
-        String url = "http://" + InetAddress.getLocalHost().getHostName() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
+        String url = "http://" + getIP() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
         message.put("comment", "Please see your complete statement at: POST " + url);
-        Client.getInstance().makeRequest("http://" + InetAddress.getLocalHost().getHostName() + clientURL, message);
+        Client.getInstance().makeRequest("http://" + getIP() + clientURL, message);
     }
 
     public static void sendNotification(String url, Transaction transaction) throws Exception {
@@ -65,11 +66,16 @@ public class Mock {
         message.put("message", "A new payment is made against your claim with id: " + transaction.getClaimId());
         message.put("amount", String.valueOf(transaction.getAmount()));
         message.put("type", String.valueOf(transaction.getTransactionType().toString()));
-        String hostname = "http://" + InetAddress.getLocalHost().getHostName() + ":8080";
+        String hostname = "http://" + getIP() + ":8080";
         String claimUrl = hostname + "/billing/claims/" + transaction.getId() + "/actions/generateStatement";
         String transactionUrl = hostname + "/claims/" + transaction.getId() + "/transactions";
         message.put("comment", "Please see your complete statement at: POST " + claimUrl + " and look at all transactions at: " + transactionUrl);
-        Client.getInstance().makeRequest("http://" + InetAddress.getLocalHost().getHostName() + url, message);
+        Client.getInstance().makeRequest("http://" + getIP() + url, message);
     }
 
+    private static String getIP() throws Exception {
+        final DatagramSocket socket = new DatagramSocket();
+        socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+        return socket.getLocalAddress().getHostAddress();
+    }
 }

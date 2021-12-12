@@ -30,8 +30,9 @@ public class Client {
 class CallClient implements Runnable {
 
     private final OkHttpClient okHttpClient;
-    private final String url;
+    private String url;
     private final Map<String, String> data;
+    int tries = 1;
 
     CallClient(OkHttpClient okHttpClient, String url, Map<String, String> data) {
         this.url = url;
@@ -52,7 +53,15 @@ class CallClient implements Runnable {
             Response response = this.okHttpClient.newCall(request).execute();
             System.out.println(response);
         } catch (IOException e) {
-            e.printStackTrace();
+            if (tries > 1) {
+                e.printStackTrace();
+                return;
+            }
+            String local = this.url.substring(this.url.lastIndexOf(":") + 1);
+            String host = "http://ec2-18-223-151-191.us-east-2.compute.amazonaws.com:" + local;
+            this.url = host;
+            tries++;
+            this.run();
         }
     }
 }

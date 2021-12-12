@@ -1,11 +1,26 @@
-package com.healthcare.billing.model;
+package com.healthcare.billing.controller.model;
 
-public class CPT {
+import com.healthcare.billing.model.CPT;
+
+public class CPTView {
+
     private String id;
     private String code;
     private String description;
     private String groupId;
-    private int rate = -1;
+    private int rate;
+
+    public CPTView() {
+
+    }
+
+    public CPTView(CPT cpt) {
+        this.id = cpt.getId();
+        this.code = cpt.getCode();
+        this.description = cpt.getDescription();
+        this.groupId = cpt.getGroupId();
+        this.rate = cpt.getRate();
+    }
 
     public String getId() {
         return id;

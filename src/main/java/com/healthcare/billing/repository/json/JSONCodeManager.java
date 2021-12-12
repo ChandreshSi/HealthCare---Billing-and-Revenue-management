@@ -3,7 +3,6 @@ package com.healthcare.billing.repository.json;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.healthcare.billing.model.CPT;
-import com.healthcare.billing.model.CPTCodeRate;
 import com.healthcare.billing.model.CPTGroup;
 import com.healthcare.billing.model.ICD10;
 import com.healthcare.billing.repository.model.ICD10Code;
@@ -14,8 +13,9 @@ import java.util.*;
 
 public class JSONCodeManager {
 
-    private final List<ICD10> baseSearchICDCodes;
-    private final Map<String, List<ICD10>> icdCodes;
+    private final List<ICD10> baseSearchICD10s;
+    private final Map<String, List<ICD10>> searchICD10s;
+    private final Map<String, ICD10> icdMap;
     private final List<CPTGroup> cptGroups;
     private final Map<String, List<CPT>> cptGroupMap;
     private final Map<String, CPT> cptMap;
@@ -23,8 +23,9 @@ public class JSONCodeManager {
     private static JSONCodeManager codeManagement;
 
     private JSONCodeManager() {
-        this.baseSearchICDCodes = new LinkedList<>();
-        this.icdCodes = new LinkedHashMap<>();
+        this.baseSearchICD10s = new LinkedList<>();
+        this.searchICD10s = new LinkedHashMap<>();
+        this.icdMap = new LinkedHashMap<>();
         this.cptGroups = new LinkedList<>();
         this.cptGroupMap = new LinkedHashMap<>();
         this.cptMap = new LinkedHashMap<>();
@@ -38,12 +39,12 @@ public class JSONCodeManager {
         return codeManagement;
     }
 
-    public List<ICD10> getBaseSearchICDCodes() {
-        return this.baseSearchICDCodes;
+    public List<ICD10> getBaseSearchICD10s() {
+        return this.baseSearchICD10s;
     }
 
-    public List<ICD10> getICDCodes(String search) {
-        return this.icdCodes.get(search);
+    public List<ICD10> getSearchICD10s(String search) {
+        return this.searchICD10s.get(search);
     }
 
     public List<CPTGroup> getCPTCodes() {
@@ -62,12 +63,17 @@ public class JSONCodeManager {
         return this.cptMap.get(code);
     }
 
+    public Map<String, ICD10> getICD10Map() {
+        return this.icdMap;
+    }
+
     private void initialize() {
         try {
             initializeBaseSearchWithFirstLevelICDCodes();
             initializeICD10WithSecondLevelICDCodes();
             initializeICD10withThirdLevelICDCodes();
             initializeCPTGroupAndMap();
+            initializeICDMap();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,7 +84,7 @@ public class JSONCodeManager {
         }.getType(), "/firstSearch.json");
         for (String key : map.keySet()) {
             ICD10 code = createICD10(key, map.get(key));
-            this.baseSearchICDCodes.add(code);
+            this.baseSearchICD10s.add(code);
         }
     }
 
@@ -86,10 +92,10 @@ public class JSONCodeManager {
         Map<String, Map<String, String>> map = toObject(new TypeToken<Map<String, Map<String, String>>>() {
         }.getType(), "/secondSearch.json");
         for (String key : map.keySet()) {
-            this.icdCodes.put(key, new LinkedList<>());
+            this.searchICD10s.put(key, new LinkedList<>());
             for (String sKey : map.get(key).keySet()) {
                 ICD10 code = createICD10(sKey, map.get(key).get(sKey));
-                this.icdCodes.get(key).add(code);
+                this.searchICD10s.get(key).add(code);
             }
         }
     }
@@ -99,13 +105,13 @@ public class JSONCodeManager {
         }.getType(), "/thirdSearch.json");
         for (String lOne : map.keySet()) {
             for (String lTwo : map.get(lOne).keySet()) {
-                this.icdCodes.put(lTwo, new LinkedList<>());
+                this.searchICD10s.put(lTwo, new LinkedList<>());
                 for (String key : map.get(lOne).get(lTwo).keySet()) {
                     ICD10Code code = map.get(lOne).get(lTwo).get(key);
                     ICD10 icd10 = createICD10(code);
-                    this.icdCodes.put(icd10.getCode(), new LinkedList<>());
-                    this.icdCodes.get(icd10.getCode()).add(icd10);
-                    this.icdCodes.get(lTwo).add(icd10);
+                    this.searchICD10s.put(icd10.getCode(), new LinkedList<>());
+                    this.searchICD10s.get(icd10.getCode()).add(icd10);
+                    this.searchICD10s.get(lTwo).add(icd10);
                     Queue<ICD10Code> queue = new LinkedList<>();
                     queue.offer(code);
                     while (!queue.isEmpty()) {
@@ -140,8 +146,17 @@ public class JSONCodeManager {
                 this.cptMap.put(cpt.getCode(), cpt);
                 cptCodes.add(cpt);
             }
-            group.setCodes(cptCodes);
+            group.setCpts(cptCodes);
             this.cptGroups.add(group);
+        }
+    }
+
+    void initializeICDMap() {
+        for (String key : searchICD10s.keySet()) {
+            if (!key.contains("-")) {
+                ICD10 icd10 = searchICD10s.get(key).get(0);
+                icdMap.put(icd10.getId(), icd10);
+            }
         }
     }
 
@@ -174,8 +189,7 @@ public class JSONCodeManager {
 
     private CPT createCPT(String code, String description) {
         CPT cpt = new CPT();
-        // Using code as an ID
-//        cpt.setId(UUID.randomUUID().toString());
+        cpt.setId(UUID.randomUUID().toString());
         cpt.setCode(code);
         cpt.setDescription(description);
         return cpt;

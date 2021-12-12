@@ -2,11 +2,11 @@ package com.healthcare.billing.model;
 
 public enum Status {
 
-    INITIATED(1), SENT_FOR_ADJUDICATION(2), ACCEPTED(3), REJECTED(4), DENIED(5), DELETED(6), PROCESSED(7);
+    INITIATED(1), SENT_FOR_ADJUDICATION(2), PARTIALLY_PROCESSED(3), ACCEPTED(4), REJECTED(5), DENIED(6), DELETED(7), PROCESSED(10);
 
     private int status;
 
-    private Status(int status) {
+    Status(int status) {
         this.status = status;
     }
 
@@ -17,12 +17,14 @@ public enum Status {
             case 2:
                 return SENT_FOR_ADJUDICATION;
             case 3:
-                return ACCEPTED;
+                return PARTIALLY_PROCESSED;
             case 4:
-                return REJECTED;
+                return ACCEPTED;
             case 5:
+                return REJECTED;
+            case 6:
                 return DENIED;
-            case 7:
+            case 10:
                 return PROCESSED;
             default:
                 return DELETED;

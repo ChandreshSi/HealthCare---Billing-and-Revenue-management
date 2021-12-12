@@ -6,24 +6,26 @@ import com.healthcare.billing.model.ICD10;
 import java.util.List;
 
 public class CreateClaimRequest {
-    private List<ICD10> icd10Codes;
-    private List<CPT> cptCodes;
-    private String patientId;
 
-    public List<ICD10> getIcd10Codes() {
+    private List<String> icd10Codes;
+    private List<String> cpts;
+    private String patientId;
+    private String additionalInfo;
+
+    public List<String> getIcd10Codes() {
         return icd10Codes;
     }
 
-    public void setIcd10Codes(List<ICD10> icd10Codes) {
+    public void setIcd10Codes(List<String> icd10Codes) {
         this.icd10Codes = icd10Codes;
     }
 
-    public List<CPT> getCptCodes() {
-        return cptCodes;
+    public List<String> getCpts() {
+        return cpts;
     }
 
-    public void setCptCodes(List<CPT> cptCodes) {
-        this.cptCodes = cptCodes;
+    public void setCpts(List<String> cpts) {
+        this.cpts = cpts;
     }
 
     public String getPatientId() {
@@ -34,12 +36,21 @@ public class CreateClaimRequest {
         this.patientId = patientId;
     }
 
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
     @Override
     public String toString() {
         return "CreateClaimRequest{" +
                 "icd10Codes=" + icd10Codes +
-                ", cptCodes=" + cptCodes +
+                ", cpts=" + cpts +
                 ", patientId='" + patientId + '\'' +
+                ", additionalInfo='" + additionalInfo + '\'' +
                 '}';
     }
 }

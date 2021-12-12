@@ -52,11 +52,12 @@ public class ICD10 {
 
     @Override
     public String toString() {
-        return "ICD{" +
-                "id=" + id +
+        return "ICD10{" +
+                "id='" + id + '\'' +
                 ", code='" + code + '\'' +
                 ", description='" + description + '\'' +
                 ", parentId='" + parentId + '\'' +
+                ", subCodes=" + subCodes +
                 '}';
     }
 }

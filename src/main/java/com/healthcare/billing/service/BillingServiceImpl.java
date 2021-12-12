@@ -3,190 +3,161 @@ package com.healthcare.billing.service;
 import com.healthcare.billing.model.*;
 import com.healthcare.billing.repository.BillingRepository;
 import com.healthcare.billing.repository.BillingRepositoryImpl;
+import com.healthcare.billing.util.Mock;
 
-import javax.websocket.OnError;
-import javax.xml.crypto.dsig.TransformService;
 import java.util.*;
 
 public class BillingServiceImpl implements BillingService {
 
-    private BillingRepository repository = new BillingRepositoryImpl();
+    final private BillingRepository repository = new BillingRepositoryImpl();
 
     @Override
-    public List<ICD10> getBaseSearchICDCodes() {
-        return repository.getBaseSearchICDCodes();
+    public List<ICD10> getBaseSearchICD10s() {
+        return repository.getBaseSearchICD10s();
     }
 
     @Override
-    public List<ICD10> getICDCodes(String search) {
-        return repository.getICDCodes(search);
+    public List<ICD10> getSearchICD10s(String search) {
+        return repository.getSearchICD10s(search);
     }
 
     @Override
-    public List<CPTGroup> getCPTCodes() {
-        return repository.getCPTCodes();
+    public ICD10 getICD10s(String search) {
+        return repository.getICD10s(search);
     }
 
     @Override
-    public List<CPT> getCPTCodes(String groupId) {
-        return repository.getCPTCodes(groupId);
+    public List<CPTGroup> getCPTGroups(CPTGroup search) {
+        return repository.getCPTGroups(search);
     }
 
     @Override
-    public List<CPTCodeRate> getCPTCodeRates() {
-        return repository.getCPTCodeRates();
+    public List<CPT> getCPTs(CPT search) {
+        return repository.getCPTs(search);
     }
 
     @Override
-    public CPTCodeRate getCPTCodeRate(String code) {
-        return repository.getCPTCodeRate(code);
-    }
-
-    @Override
-    public List<CPTGroup> getCptGroupCodesWithRate() {
-        List<CPTGroup> cptGroup = getCPTCodes();
-        List<CPTCodeRate> cptRate = getCPTCodeRates();
-        Map<String, CPTCodeRate> map = new HashMap<>();
-        for (CPTCodeRate rate : cptRate) {
-            map.put(rate.getCptCode().getCode(), rate);
-        }
-        for (CPTGroup group : cptGroup) {
-            for (CPT cpt : group.getCodes()) {
-                if (group.getCptCodeRates() == null) group.setCptCodeRates(new LinkedList<>());
-                group.getCptCodeRates().add(map.get(cpt.getCode()));
-            }
-            group.setCodes(null);
-        }
-        return cptGroup;
+    public void patchCPT(String cptId, CPT cpt) {
+        repository.patchCPT(cptId, cpt);
     }
 
     @Override
     public String createClaim(Claim claim) {
-        return repository.createClaim(claim);
-    }
-
-    @Override
-    public Claim getClaim(String id) {
-        return repository.getClaim(id);
+        String id = repository.createClaim(claim);
+        try {
+//            Claim search = new Claim();
+//            search.setId(id);
+//            Claim dbClaim = getClaim(search).get(0);
+//            Mock.sendNotification(dbClaim);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unexpected error", e);
+        }
+        return id;
     }
 
     @Override
     public Statement getStatement(String claimId) {
-        Claim claim = repository.getClaim(claimId);
-        if (claim == null || claim.getStatus() == Status.PROCESSED) {
+        Claim search = new Claim();
+        search.setId(claimId);
+        Claim claim = repository.getClaim(search).get(0);
+        if (claim == null || claim.getStatus() == Status.PROCESSED || claim.getStatus() == Status.DELETED) {
             throw new IllegalArgumentException("No statement is present for the claim id: " + claimId);
         }
-        List<Transaction> transactions = repository.getTransactions(claim);
+        List<Transaction> transactions = repository.getTransactions(claim.getId());
         Statement statement = new Statement();
         statement.setClaim(claim);
         statement.setTransactions(transactions);
-        statement.setRemainingAmount(calculateRemainingAmount(claim, transactions));
+        statement.setBalance(calculateRemainingAmount(claim, transactions));
         return statement;
     }
 
     @Override
     public void settleClaim(String claimId) {
-        Claim claim = repository.getClaim(claimId);
-        claim.setStatus(Status.PROCESSED);
-        repository.updateClaim(claim);
+        Claim update = new Claim();
+        update.setId(claimId);
+        update.setStatus(Status.PROCESSED);
+        repository.updateClaim(update);
+        try {
+//            Claim claim = getClaim(update).get(0);
+//            Mock.sendNotification(claim);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unexpected error", e);
+        }
     }
 
     private int calculateRemainingAmount(Claim claim, List<Transaction> transactions) {
-        int amount = claim.getTotalAmount();
+        int amount = claim.getAmount();
         for (Transaction transaction : transactions) {
-            amount -= transaction.getAmount();
+            amount += transaction.getTransactionType() == TransactionType.CREDIT ?
+                    transaction.getAmount() : -1 * transaction.getAmount();
         }
         return amount;
-    }
-
-    public void addFromInsurerTransaction(String claimId, String insurerId, int amount) {
-        Transaction transaction = new Transaction();
-        transaction.setClaimId(claimId);
-        transaction.setPayerId(insurerId);
-        transaction.setTransactionType(1); // received
-        transaction.setComments("Payment received from insurer");
-        transaction.setAmount(amount);
-        transaction.setPayeeType(2); // insurer
-        transaction.setCurrency(repository.getCurrency("USD"));
-        repository.addTransaction(transaction);
     }
 
     @Override
     public void processClaim(String claimId) {
-        Claim claim = getClaim(claimId);
-        List<String> insurers = getInsuranceDetails(claim.getPatientId());
-        for (String insurerId : insurers) {
-            processClaim(claim, insurerId);
+        Claim update = new Claim();
+        update.setId(claimId);
+        update.setStatus(Status.SENT_FOR_ADJUDICATION);
+        repository.updateClaim(update);
+        try {
+//            Claim claim = getClaim(update).get(0);
+//            Mock.sendNotification(claim);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unexpected error", e);
         }
     }
 
     @Override
-    public List<Claim> getClaim(Claim claim) {
-        return repository.getClaim(claim);
+    public List<Claim> getClaim(Claim search) {
+        return repository.getClaim(search);
     }
 
-    public List<String> getInsuranceDetails(String patientId) {
-        // mock
-        List<String> insurer = new LinkedList<>();
-        for (int i = 0; i < 2; i++) {
-            insurer.add(UUID.randomUUID().toString());
+    @Override
+    public void addTransaction(Transaction transaction) {
+        repository.addTransaction(transaction);
+        try {
+//            Transaction dbTransaction = getTransaction(transaction.getClaimId()).get(0);
+//            Mock.sendNotification(dbTransaction);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unexpected error", e);
         }
-        return insurer;
     }
 
-    public void processClaim(Claim claim, String insurerId) {
-        if (claim.getStatus() == Status.PROCESSED)
-            throw new IllegalArgumentException("The clain is already processed! Claim id: " + claim.getId());
-        // send claim to insurer
-        Status status = sendToInsurer(claim, insurerId);
-        // update status to SEND_FOR_ADJUDICATION
-//        updateClaimStatus(Status.SENT_FOR_ADJUDICATION, claim);
-        int remainingAmount = claim.getTotalAmount() - calculateRemainingAmount(claim);
-        if (remainingAmount <= 0) return;
-        switch (status) {
-            // if claim accepted:
-            case ACCEPTED:
-                //  insert a transaction for received payment
-                addFromInsurerTransaction(claim.getId(), insurerId, new Random().nextInt(remainingAmount));
-                //  update claim status
-                updateClaimStatus(Status.ACCEPTED, claim);
-                //  send notification
-                sendNotification(claim);
-                break;
-            // if claim denied, or rejected:
-            case DENIED:
-            case REJECTED:
-                //  update claim status
-                updateClaimStatus(status, claim);
-                //  send notification
-                sendNotification(claim);
+    @Override
+    public void updateClaim(Claim claim) {
+        repository.updateClaim(claim);
+        try {
+//            Claim search = new Claim();
+//            search.setId(claim.getId());
+//            Claim dbClaim = getClaim(claim).get(0);
+//            Mock.sendNotification(dbClaim);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unexpected error", e);
         }
-
     }
 
-    public void updateClaimStatus(Status status, Claim claim) {
-        claim.setStatus(status);
+    @Override
+    public List<Transaction> getTransaction(String claimId) {
+        return repository.getTransactions(claimId);
+    }
+
+    @Override
+    public void deleteClaim(String claimId) {
+        Claim claim = new Claim();
+        claim.setId(claimId);
+        claim.setStatus(Status.DELETED);
         repository.updateClaim(claim);
     }
 
-    private Status sendToInsurer(Claim claim, String insurerId) {
-        // mocked
-        if (claim.hashCode() % 15 == 0) return Status.DENIED;
-        if (claim.hashCode() % 25 == 0) return Status.REJECTED;
-        return Status.ACCEPTED;
-    }
-
-    private void sendNotification(Claim claim) {
-        // mocked
-    }
-
-    private int calculateRemainingAmount(Claim claim) {
-        List<Transaction> transactions = repository.getTransactions(claim);
-        int amount = 0;
-        for (Transaction transaction : transactions) {
-            amount += transaction.getAmount();
-        }
-        return amount;
+    @Override
+    public Map<String, Object> getConfigurations() {
+        return repository.getConfigurations();
     }
 
 }

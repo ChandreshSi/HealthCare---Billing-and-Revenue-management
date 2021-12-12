@@ -8,7 +8,7 @@ public class Statement {
     // encounter details
     private Claim claim;
     private List<Transaction> transactions;
-    private int remainingAmount;
+    private int balance;
 
     public Claim getClaim() {
         return claim;
@@ -26,11 +26,11 @@ public class Statement {
         this.transactions = transactions;
     }
 
-    public int getRemainingAmount() {
-        return remainingAmount;
+    public int getBalance() {
+        return balance;
     }
 
-    public void setRemainingAmount(int remainingAmount) {
-        this.remainingAmount = remainingAmount;
+    public void setBalance(int balance) {
+        this.balance = balance;
     }
 }

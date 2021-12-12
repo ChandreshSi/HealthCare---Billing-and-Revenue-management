@@ -1,19 +1,44 @@
-package com.healthcare.billing.model;
+package com.healthcare.billing.controller.model;
+
+import com.healthcare.billing.model.CPT;
+import com.healthcare.billing.model.Claim;
+import com.healthcare.billing.model.ICD10;
+import com.healthcare.billing.model.Status;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
-public class Claim {
+public class ClaimView {
 
     private String id;
     private List<ICD10> icd10s;
-    private List<CPT> CPTs;
+    private List<CPTView> CPTs;
     private String patientId;
     private String additionalInfo;
     private Status status;
-    private int amount = -1;
+    private int amount;
     private Date timeCreated;
     private Date timeUpdated;
+
+    public ClaimView() {
+
+    }
+
+    public ClaimView(Claim claim) {
+        this.id = claim.getId();
+        this.icd10s = claim.getIcd10s();
+        this.CPTs = new LinkedList<>();
+        for (CPT cpt : claim.getCPTs()) {
+            this.CPTs.add(new CPTView(cpt));
+        }
+        this.patientId = claim.getPatientId();
+        this.additionalInfo = claim.getAdditionalInfo();
+        this.status = claim.getStatus();
+        this.amount = claim.getAmount();
+        this.timeCreated = claim.getTimeCreated();
+        this.timeUpdated = claim.getTimeUpdated();
+    }
 
     public String getId() {
         return id;
@@ -29,6 +54,14 @@ public class Claim {
 
     public void setIcd10s(List<ICD10> icd10s) {
         this.icd10s = icd10s;
+    }
+
+    public List<CPTView> getCPTs() {
+        return CPTs;
+    }
+
+    public void setCPTs(List<CPTView> CPTs) {
+        this.CPTs = CPTs;
     }
 
     public String getPatientId() {
@@ -77,13 +110,5 @@ public class Claim {
 
     public void setTimeUpdated(Date timeUpdated) {
         this.timeUpdated = timeUpdated;
-    }
-
-    public List<CPT> getCPTs() {
-        return CPTs;
-    }
-
-    public void setCPTs(List<CPT> CPTs) {
-        this.CPTs = CPTs;
     }
 }

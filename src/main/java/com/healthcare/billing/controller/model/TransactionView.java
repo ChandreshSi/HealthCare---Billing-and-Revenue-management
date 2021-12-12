@@ -1,8 +1,14 @@
-package com.healthcare.billing.model;
+package com.healthcare.billing.controller.model;
+
+import com.healthcare.billing.constants.BillingConstant;
+import com.healthcare.billing.model.Transaction;
+import com.healthcare.billing.model.TransactionType;
+import com.healthcare.billing.util.Configuration;
 
 import java.util.Date;
 
-public class Transaction {
+public class TransactionView {
+
     private String id;
     private String claimId;
     private int amount;
@@ -10,6 +16,20 @@ public class Transaction {
     private String payerId;
     private Date timeCreated;
     private TransactionType transactionType;
+
+    public TransactionView() {
+
+    }
+
+    public TransactionView(Transaction transaction) {
+        this.id = transaction.getId();
+        this.claimId = transaction.getClaimId();
+        this.amount = transaction.getAmount();
+        this.comments = transaction.getComments();
+        this.payerId = transaction.getPayerId();
+        this.timeCreated = transaction.getTimeCreated();
+        this.transactionType = transaction.getTransactionType();
+    }
 
     public String getId() {
         return id;

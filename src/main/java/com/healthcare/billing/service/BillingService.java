@@ -7,23 +7,19 @@ import java.util.Map;
 
 public interface BillingService {
 
-    public List<ICD10> getBaseSearchICDCodes();
+    public List<ICD10> getBaseSearchICD10s();
 
-    public List<ICD10> getICDCodes(String search);
+    public List<ICD10> getSearchICD10s(String search);
 
-    public List<CPTGroup> getCPTCodes();
+    public ICD10 getICD10s(String id);
 
-    public List<CPT> getCPTCodes(String groupId);
+    public List<CPTGroup> getCPTGroups(CPTGroup search);
 
-    public List<CPTCodeRate> getCPTCodeRates();
+    public List<CPT> getCPTs(CPT search);
 
-    public CPTCodeRate getCPTCodeRate(String code);
-
-    public List<CPTGroup> getCptGroupCodesWithRate();
+    public void patchCPT(String cptId, CPT cpt);
 
     public String createClaim(Claim claim);
-
-    public Claim getClaim(String id);
 
     public void processClaim(String claimId);
 
@@ -31,6 +27,16 @@ public interface BillingService {
 
     public void settleClaim(String claimId);
 
-    public List<Claim> getClaim(Claim claim);
+    public List<Claim> getClaim(Claim search);
+
+    public void updateClaim(Claim claim);
+
+    public void deleteClaim(String claimId);
+
+    public void addTransaction(Transaction transaction);
+
+    public List<Transaction> getTransaction(String claimId);
+
+    public Map<String, Object> getConfigurations();
 
 }

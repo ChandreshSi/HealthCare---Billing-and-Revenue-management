@@ -7,30 +7,34 @@ import java.util.Map;
 
 public interface BillingRepository {
 
-    public List<ICD10> getBaseSearchICDCodes();
+    public List<ICD10> getBaseSearchICD10s();
 
-    public List<ICD10> getICDCodes(String search);
+    public List<ICD10> getSearchICD10s(String search);
 
-    public List<CPTGroup> getCPTCodes();
+    public ICD10 getICD10s(String search);
 
-    public List<CPT> getCPTCodes(String groupId);
+    public List<CPTGroup> getCPTGroups(CPTGroup search);
 
-    public List<CPTCodeRate> getCPTCodeRates();
+    public List<CPT> getCPTs(CPT search);
 
-    public CPTCodeRate getCPTCodeRate(String code);
+    public void patchCPT(String cptId, CPT cpt);
 
-    public String createClaim(Claim claim);
+    public String createClaim(Claim search);
 
-    public Claim getClaim(String id);
+    public List<Claim> getClaim(Claim search);
 
     public void addTransaction(Transaction transaction);
 
     public void updateClaim(Claim claim);
 
-    public List<Transaction> getTransactions(Claim claim);
+    public void deleteClaim(String claimId);
+//
+//    public void updateClaim(Claim claim);
+//
+    public List<Transaction> getTransactions(String claimId);
+//
+//    public List<Claim> getClaim(Claim claim);
 
-    public List<Claim> getClaim(Claim claim);
-
-    public Currency getCurrency(String identifier);
+    public Map<String, Object> getConfigurations();
 
 }

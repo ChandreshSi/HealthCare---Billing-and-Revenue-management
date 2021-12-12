@@ -47,7 +47,7 @@ public class Mock {
         message.put("amount", String.valueOf(claim.getAmount()));
         String url = "http://" + InetAddress.getLocalHost().getHostName() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
         message.put("comment", "A complete statement can be downloaded from: POST " + url);
-        Client.getInstance().makeRequest(clientURL, message);
+        Client.getInstance().makeRequest("http://" + InetAddress.getLocalHost().getHostName() + clientURL, message);
     }
 
     public static void sendNotification(String clientURL, Claim claim) throws Exception {
@@ -57,7 +57,7 @@ public class Mock {
         message.put("status", String.valueOf(claim.getStatus().toString()));
         String url = "http://" + InetAddress.getLocalHost().getHostName() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
         message.put("comment", "Please see your complete statement at: POST " + url);
-        Client.getInstance().makeRequest(clientURL, message);
+        Client.getInstance().makeRequest("http://" + InetAddress.getLocalHost().getHostName() + clientURL, message);
     }
 
     public static void sendNotification(String url, Transaction transaction) throws Exception {
@@ -69,7 +69,7 @@ public class Mock {
         String claimUrl = hostname + "/billing/claims/" + transaction.getId() + "/actions/generateStatement";
         String transactionUrl = hostname + "/claims/" + transaction.getId() + "/transactions";
         message.put("comment", "Please see your complete statement at: POST " + claimUrl + " and look at all transactions at: " + transactionUrl);
-        Client.getInstance().makeRequest(url, message);
+        Client.getInstance().makeRequest("http://" + InetAddress.getLocalHost().getHostName() + url, message);
     }
 
 }

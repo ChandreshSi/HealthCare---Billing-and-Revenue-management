@@ -12,11 +12,12 @@ tags:
   description: "Everything about procedures and rates"
 - name: "claims"
   description: "Billing claims"
+- name: "configuration"
+  description: "Billing Configurations"
 schemes:
-- "https"
 - "http"
 paths:
-  /icd10codes:
+  /icd10:
     get:
       tags:
       - "codes"
@@ -32,15 +33,15 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/ICD10"
-  /icd10codes/{icd10codeId}:
+  /icd10/{icd10Code}:
     get:
       tags:
       - "codes"
       summary: "Returns the list of ICD-10 codes filtered by the {code}."
       description: "List the range of ICD-10 codes based on the code provided in the path. The code could be a range string provided as a code."
-      operationId: "getICD10CodesBySearch"
+      operationId: "getICD10Code"
       parameters:
-      - name: "icd10codeId"
+      - name: "icd10Code"
         in: "path"
         description: "Search string. This could be code range/group or the code. This has to be same as a code provided in above API or this API"
         required: true
@@ -54,7 +55,7 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/ICD10"
-  /cptCodes:
+  /cptGroups:
     get:
       tags:
       - "codes"
@@ -70,7 +71,7 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/CPTGroup"
-  /cptCodes/{groupId}:
+  /cptGroups/{groupId}:
     get:
       tags:
       - "codes"
@@ -89,43 +90,69 @@ paths:
         "200":
           description: "successful operation"
           schema:
+            $ref: "#/definitions/CPTGroup"
+  /cpts:
+    get:
+      tags:
+      - "codes"
+      summary: "List all the CPT codes for the given group id."
+      description: "Returns all the CPT codes for the given group id."
+      operationId: "getCPTs"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "successful operation"
+          schema:
             type: "array"
             items:
               $ref: "#/definitions/CPT"
-  /cptCodes/rates:
+  /cpts/{cptId}:
     get:
       tags:
       - "codes"
-      summary: "Rate of a procedure."
-      description: "Returns the rate of a procedure with id {cptCodesId}."
-      operationId: "procedureRates"
-      responses:
-        "200":
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/CPTCodeRate"
-        "400":
-          description: "Invalid status value"
-  /cptCodes/rates/{cptCodesId}:
-    get:
-      tags:
-      - "codes"
-      summary: "Rate of a procedure."
-      description: "Returns the rate of a procedure with id {cptCodesId}."
-      operationId: "procedureRate"
+      summary: "List all the CPT codes for the given group id."
+      description: "Returns all the CPT codes for the given group id."
+      operationId: "getCPT"
       parameters:
-      - name: "cptCodesId"
+      - name: "cptId"
         in: "path"
-        description: "Procedure Id"
+        description: "Group id for the code"
         required: true
         type: "string"
       responses:
+        "405":
+          description: "Invalid input"
         "200":
           description: "successful operation"
           schema:
-            $ref: "#/definitions/CPTCodeRate"
-        "400":
-          description: "Invalid status value"
+            $ref: "#/definitions/CPT"
+    patch:
+      tags:
+      - "codes"
+      summary: "Patch the rate againt the CPT."
+      description: "Patch the rate againt the CPT."
+      operationId: "patchCPT"
+      parameters:
+      - name: "cptId"
+        in: "path"
+        description: "Group id for the code"
+        required: true
+        type: "string"
+      - in: body
+        name: "cpt"
+        schema:
+          type: object
+          properties:
+            rate:
+              type: number
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/CPT"
   /claims:
     get:
       tags:
@@ -133,6 +160,20 @@ paths:
       summary: "Returns list of all claims"
       description: "Returns list of all claims"
       operationId: "getClaims"
+      parameters:
+      - name: "status"
+        in: "query"
+        description: "status filter"
+        required: false
+        type: "string"
+        enum:
+          - "INITIATED"
+          - "SENT_FOR_ADJUDICATION"
+          - "PARTIALLY_PROCESSED"
+          - "ACCEPTED"
+          - "REJECTED"
+          - "DENIED"
+          - "PROCESSED"
       responses:
         "200":
           description: "successful operation"
@@ -192,6 +233,42 @@ paths:
         description: "ID of pet that needs to be updated"
         required: true
         type: "string"
+      - in: body
+        name: "status"
+        schema:
+          $ref: "#/definitions/Claim"
+      responses:
+        "405":
+          description: "Invalid input"
+    patch:
+      tags:
+      - "claims"
+      summary: "Patch a claim with status"
+      description: ""
+      operationId: "patchClaim"
+      parameters:
+      - name: "claimId"
+        in: "path"
+        description: "ID of pet that needs to be updated"
+        required: true
+        type: "string"
+      - in: body
+        name: "status"
+        schema:
+          type: object
+          properties:
+            status:
+              type: "string"
+              description: "status of the claim"
+              enum:
+              - "INITIATED"
+              - "SENT_FOR_ADJUDICATION"
+              - "PARTIALLY_PROCESSED"
+              - "ACCEPTED"
+              - "REJECTED"
+              - "DENIED"
+              - "DELETED"
+              - "PROCESSED"
       responses:
         "405":
           description: "Invalid input"
@@ -212,6 +289,97 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Not found"
+  /claims/{claimId}/icd10s:
+    put:
+      tags:
+      - "claims"
+      summary: "Updates claim with ICD-10 code"
+      description: ""
+      operationId: "updateClaimICD"
+      parameters:
+      - name: "claimId"
+        in: "path"
+        description: "ID of pet that needs to be updated"
+        required: true
+        type: "string"
+      - in: body
+        name: "status"
+        schema:
+          type: object
+          items:
+            $ref: "#/definitions/ICD10"
+      responses:
+        "405":
+          description: "Invalid input"
+  /claims/{claimId}/cpts:
+    put:
+      tags:
+      - "claims"
+      summary: "Updates claim with CPT code"
+      description: ""
+      operationId: "updateClaimCPT"
+      parameters:
+      - name: "claimId"
+        in: "path"
+        description: "ID of pet that needs to be updated"
+        required: true
+        type: "string"
+      - in: body
+        name: "status"
+        schema:
+          type: object
+          items:
+            $ref: "#/definitions/CPT"
+      responses:
+        "405":
+          description: "Invalid input"
+  /claims/{claimId}/transactions:
+    get:
+      tags:
+      - "claims"
+      summary: "List of transactions of the claimId"
+      description: "List of transactions of the claimId"
+      operationId: "getTransactions"
+      parameters:
+      - name: "claimId"
+        in: "path"
+        description: "ID of claim that needs to be updated"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Transaction"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Pet not found"
+    post:
+      tags:
+      - "claims"
+      summary: "List of transactions of the claimId"
+      description: "List of transactions of the claimId"
+      operationId: "createTransaction"
+      parameters:
+      - name: "claimId"
+        in: "path"
+        description: "ID of claim that needs to be updated"
+        required: true
+        type: "string"
+      - in: body
+        name: "transactions"
+        schema:
+          $ref: "#/definitions/Transaction"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Transaction"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Pet not found"
   /claims/{claimId}/actions/process:
     post:
       tags:
@@ -268,6 +436,21 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Claim not found"
+  /configurations:
+    get:
+      tags:
+      - "configuration"
+      summary: "Gets billing configuration"
+      operationId: "getConfiguration"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              type: object
 definitions:
   ICD10:
     type: "object"
@@ -297,6 +480,11 @@ definitions:
       description:
         type: "string"
         description: "information about the code"
+      groupId:
+        type: "string"
+        description: "CPT group id"
+      rate:
+        type: "number"
   CPTGroup:
     type: object
     properties:
@@ -312,54 +500,58 @@ definitions:
       additionalInfo:
         type: "string"
         description: "Any additional info about the grouping"
-  Currency:
-    type: object
-    properties:
-      identifier:
-        type: string
-      symbol:
-        type: string
-  CPTCodeRate:
+      cpts:
+        type: array
+        items:
+          "$ref": "#/definitions/CPT"
+  Transaction:
     type: object
     properties:
       id:
         type: "string"
         description: "object id"
-      cptCode:
-        "$ref": "#/definitions/CPT"
-      rate:
-        type: integer
-      currency:
-        "$ref": "#/definitions/Currency"
-  CreateClaimRequest:
-    type: object
-    properties:
-      cptCodes:
-        type: array
-        items:
-          "$ref": "#/definitions/CPTCodeRate"
-      icd10Codes:
-        type: array
-        items:
-          "$ref": "#/definitions/ICD10"
-      patientId:
-        type: string
+      claimId:
+        type: "string"
+      amount:
+        type: "number"
+      comments:
+        type: "string"
+      payerId:
+        type: "string"
+      timeCreated:
+        type: "string"
+      transactionType:
+        type: "string"
   Statement:
     type: object
+  CreateClaimRequest:
+    type: "object"
+    properties:
+      icd10Codes:
+        type: "array"
+        description: "Provide the ICD10 code"
+        items:
+          type: string
+      cpts:
+        type: "array"
+        description: "Provide the CPT code or CPT id"
+        items:
+          type: string
+      patientId:
+        type: "string"
+      additionalInfo:
+        type: "string"
   Claim:
     type: "object"
-    required:
-    - "name"
-    - "photoUrls"
     properties:
       id:
         type: "string"
         description: "claim id"
-      cptCodes:
+      CPTs:
         type: "array"
         items:
           $ref: "#/definitions/CPT"
-      icd10Codes:
+      icd10s:
         type: "array"
         items:
           $ref: "#/definitions/ICD10"
@@ -373,18 +565,17 @@ definitions:
         type: "string"
         description: "status of the claim"
         enum:
-        - "initiated"
-        - "accepted"
-        - "rejected"
-        - "denied"
-        - "sent_for_adjudication"
-        - "deleted"
-      currency:
-        "$ref": "#/definitions/Currency"
+          - "INITIATED"
+          - "SENT_FOR_ADJUDICATION"
+          - "PARTIALLY_PROCESSED"
+          - "ACCEPTED"
+          - "REJECTED"
+          - "DENIED"
+          - "DELETED"
+          - "PROCESSED"
       timeCreated:
         type: "string"
         description: "ISO format date created"
       timeUpdated:
         type: "string"
         description: "ISO format date created"
-        

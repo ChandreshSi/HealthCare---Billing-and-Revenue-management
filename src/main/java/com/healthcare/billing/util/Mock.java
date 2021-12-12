@@ -8,7 +8,6 @@ import java.net.InetAddress;
 import java.util.*;
 
 public class Mock {
-    private static final String CLIENT_URL = "";
     private static final String[] patientsName = new String[]{"John B. Smith", "Franklin T. Wong", "Alicia J. Zelava",
             "Jennifer S. Wallace", "Ramesh K. Narayan", "Joyce A. English", "Ahmad V. Jabbar", "James E. Borg"};
     private static final String[] patientsAddress = new String[]{"731 Fondren, Houston, TX", "638 Voss Houston, TX",
@@ -42,25 +41,35 @@ public class Mock {
         view.setEncounterDates(dates);
     }
 
-    public static void sendNotification(Claim claim) throws Exception {
-        Map<String, String> message = new HashMap<>();
-        message.put("message", "A claim is update/created for you");
+    public static void sendNotificationInsurer(String clientURL, Claim claim) throws Exception {
+        Map<String, String> message = new LinkedHashMap<>();
+        message.put("message", "A claim is generated for patient: " + claim.getPatientId());
         message.put("amount", String.valueOf(claim.getAmount()));
-        message.put("status", String.valueOf(claim.getStatus().toString()));
-        String url = "http://" + InetAddress.getLocalHost().getHostName() + ":8080/claims/" + claim.getId() + "/actions/generateStatement";
-        message.put("comment", "Please see your complete statement at: " + url);
-        Client.getInstance().makeRequest(CLIENT_URL, message);
+        String url = "http://" + InetAddress.getLocalHost().getHostName() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
+        message.put("comment", "A complete statement can be downloaded from: POST " + url);
+        Client.getInstance().makeRequest(clientURL, message);
     }
 
-    public static void sendNotification(Transaction transaction) throws Exception {
+    public static void sendNotification(String clientURL, Claim claim) throws Exception {
+        Map<String, String> message = new LinkedHashMap<>();
+        message.put("message", "A claim is update/created for you - patientID: " + claim.getPatientId());
+        message.put("amount", String.valueOf(claim.getAmount()));
+        message.put("status", String.valueOf(claim.getStatus().toString()));
+        String url = "http://" + InetAddress.getLocalHost().getHostName() + ":8080/billing/claims/" + claim.getId() + "/actions/generateStatement";
+        message.put("comment", "Please see your complete statement at: POST " + url);
+        Client.getInstance().makeRequest(clientURL, message);
+    }
+
+    public static void sendNotification(String url, Transaction transaction) throws Exception {
         Map<String, String> message = new HashMap<>();
         message.put("message", "A new payment is made against your claim with id: " + transaction.getClaimId());
         message.put("amount", String.valueOf(transaction.getAmount()));
         message.put("type", String.valueOf(transaction.getTransactionType().toString()));
         String hostname = "http://" + InetAddress.getLocalHost().getHostName() + ":8080";
-        String claimUrl = hostname + "/claims/" + transaction.getId() + "/actions/generateStatement";
+        String claimUrl = hostname + "/billing/claims/" + transaction.getId() + "/actions/generateStatement";
         String transactionUrl = hostname + "/claims/" + transaction.getId() + "/transactions";
-        message.put("comment", "Please see your complete statement at: " + claimUrl + " and look at all transactions at: " + transactionUrl);
-        Client.getInstance().makeRequest(CLIENT_URL, message);
+        message.put("comment", "Please see your complete statement at: POST " + claimUrl + " and look at all transactions at: " + transactionUrl);
+        Client.getInstance().makeRequest(url, message);
     }
+
 }

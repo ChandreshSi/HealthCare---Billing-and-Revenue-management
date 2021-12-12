@@ -1,5 +1,6 @@
 package com.healthcare.billing.util;
 
+import com.google.gson.Gson;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -40,17 +41,16 @@ class CallClient implements Runnable {
 
     @Override
     public void run() {
-        FormBody.Builder builder = new FormBody.Builder();
-        for (String key : this.data.keySet()) {
-            builder.add(key, this.data.get(key));
-        }
-        FormBody formBody = builder.build();
+        String json = new Gson().toJson(this.data);
+        RequestBody body = RequestBody.create(
+                MediaType.parse("application/json"), json);
         Request request = new Request.Builder()
                 .url(this.url)
-                .post(formBody)
+                .post(body)
                 .build();
         try {
-            this.okHttpClient.newCall(request).execute();
+            Response response = this.okHttpClient.newCall(request).execute();
+            System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package com.healthcare.billing.service;
 
+import com.healthcare.billing.constants.BillingConstant;
 import com.healthcare.billing.model.*;
 import com.healthcare.billing.repository.BillingRepository;
 import com.healthcare.billing.repository.BillingRepositoryImpl;
@@ -45,10 +46,11 @@ public class BillingServiceImpl implements BillingService {
     public String createClaim(Claim claim) {
         String id = repository.createClaim(claim);
         try {
-//            Claim search = new Claim();
-//            search.setId(id);
-//            Claim dbClaim = getClaim(search).get(0);
-//            Mock.sendNotification(dbClaim);
+            Claim search = new Claim();
+            search.setId(id);
+            Claim dbClaim = getClaim(search).get(0);
+            Mock.sendNotificationInsurer(BillingConstant.INSURER_MOCK_URL, dbClaim);
+            Mock.sendNotification(BillingConstant.PATIENT_MOCK_URL, dbClaim);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected error", e);
@@ -79,8 +81,8 @@ public class BillingServiceImpl implements BillingService {
         update.setStatus(Status.PROCESSED);
         repository.updateClaim(update);
         try {
-//            Claim claim = getClaim(update).get(0);
-//            Mock.sendNotification(claim);
+            Claim claim = getClaim(update).get(0);
+            Mock.sendNotification(BillingConstant.PATIENT_MOCK_URL, claim);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected error", e);
@@ -103,8 +105,10 @@ public class BillingServiceImpl implements BillingService {
         update.setStatus(Status.SENT_FOR_ADJUDICATION);
         repository.updateClaim(update);
         try {
-//            Claim claim = getClaim(update).get(0);
-//            Mock.sendNotification(claim);
+            Claim search = new Claim();
+            search.setId(claimId);
+            Claim dbClaim = getClaim(search).get(0);
+            Mock.sendNotification(BillingConstant.PATIENT_MOCK_URL, dbClaim);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected error", e);
@@ -120,8 +124,8 @@ public class BillingServiceImpl implements BillingService {
     public void addTransaction(Transaction transaction) {
         repository.addTransaction(transaction);
         try {
-//            Transaction dbTransaction = getTransaction(transaction.getClaimId()).get(0);
-//            Mock.sendNotification(dbTransaction);
+            Transaction dbTransaction = getTransaction(transaction.getClaimId()).get(0);
+            Mock.sendNotification(BillingConstant.PATIENT_MOCK_URL, dbTransaction);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected error", e);
@@ -132,10 +136,10 @@ public class BillingServiceImpl implements BillingService {
     public void updateClaim(Claim claim) {
         repository.updateClaim(claim);
         try {
-//            Claim search = new Claim();
-//            search.setId(claim.getId());
-//            Claim dbClaim = getClaim(claim).get(0);
-//            Mock.sendNotification(dbClaim);
+            Claim search = new Claim();
+            search.setId(claim.getId());
+            Claim dbClaim = getClaim(search).get(0);
+            Mock.sendNotification(BillingConstant.PATIENT_MOCK_URL, dbClaim);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected error", e);
@@ -149,10 +153,11 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     public void deleteClaim(String claimId) {
-        Claim claim = new Claim();
-        claim.setId(claimId);
-        claim.setStatus(Status.DELETED);
-        repository.updateClaim(claim);
+        repository.deleteClaim(claimId);
+//        Claim claim = new Claim();
+//        claim.setId(claimId);
+//        claim.setStatus(Status.DELETED);
+//        repository.updateClaim(claim);
     }
 
     @Override

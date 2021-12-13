@@ -113,7 +113,8 @@ public class BillingController {
             }
             return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(view));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"errorMessage\" : \" " + e.getCause().toString() + " \"}");
+            String message = getMessage(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"errorMessage\" : \" " + message+ " \"}");
         }
     }
 

@@ -32,16 +32,20 @@ public class StatementView {
         Claim claim = statement.getClaim();
         this.icd10s = new LinkedList<>();
         this.CPTs = new LinkedList<>();
-        for (ICD10 icd10 : claim.getIcd10s()) {
-            Map<String, String> map = new HashMap<>();
-            map.put(icd10.getCode(), icd10.getDescription());
-            this.icd10s.add(map);
+        if (claim.getIcd10s() != null) {
+            for (ICD10 icd10 : claim.getIcd10s()) {
+                Map<String, String> map = new HashMap<>();
+                map.put(icd10.getCode(), icd10.getDescription());
+                this.icd10s.add(map);
+            }
         }
-        for (CPT cpt : claim.getCPTs()) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(cpt.getCode(), cpt.getDescription());
-            map.put("rate", cpt.getRate());
-            this.CPTs.add(map);
+        if (claim.getCPTs() != null) {
+            for (CPT cpt : claim.getCPTs()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put(cpt.getCode(), cpt.getDescription());
+                map.put("rate", cpt.getRate());
+                this.CPTs.add(map);
+            }
         }
         this.additionalInfo = claim.getAdditionalInfo();
         this.status = claim.getStatus().toString();

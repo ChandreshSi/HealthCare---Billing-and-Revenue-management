@@ -22,9 +22,11 @@ public class CPTGroupView {
         this.type = group.getType();
         this.description = group.getDescription();
         this.additionalInfo = group.getAdditionalInfo();
-        this.cpts = new LinkedList<>();
-        for (CPT cpt : group.getCpts()) {
-            this.cpts.add(new CPTView(cpt));
+        if (group.getCpts() != null) {
+            this.cpts = new LinkedList<>();
+            for (CPT cpt : group.getCpts()) {
+                this.cpts.add(new CPTView(cpt));
+            }
         }
     }
 

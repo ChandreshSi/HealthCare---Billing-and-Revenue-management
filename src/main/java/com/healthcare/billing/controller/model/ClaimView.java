@@ -28,9 +28,11 @@ public class ClaimView {
     public ClaimView(Claim claim) {
         this.id = claim.getId();
         this.icd10s = claim.getIcd10s();
-        this.CPTs = new LinkedList<>();
-        for (CPT cpt : claim.getCPTs()) {
-            this.CPTs.add(new CPTView(cpt));
+        if (claim.getCPTs() != null) {
+            this.CPTs = new LinkedList<>();
+            for (CPT cpt : claim.getCPTs()) {
+                this.CPTs.add(new CPTView(cpt));
+            }
         }
         this.patientId = claim.getPatientId();
         this.additionalInfo = claim.getAdditionalInfo();

@@ -265,9 +265,9 @@ public class JDBCRepositoryImpl {
         try {
             Map<Integer, Object> parameters = new HashMap<>();
             String condition = buildSelectConditionClaim(search, parameters);
-            sql.append(" WHERE STATUS <> 7");
+//            sql.append(" WHERE STATUS <> 7");
             if (condition != null && !condition.equals("")) {
-                sql.append(" AND ");
+                sql.append(" WHERE ");
                 sql.append(condition);
             }
             PreparedStatement preparedStatement = conn.prepareStatement(sql.toString());

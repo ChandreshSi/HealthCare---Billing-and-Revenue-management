@@ -153,11 +153,11 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     public void deleteClaim(String claimId) {
-        repository.deleteClaim(claimId);
-//        Claim claim = new Claim();
-//        claim.setId(claimId);
-//        claim.setStatus(Status.DELETED);
-//        repository.updateClaim(claim);
+//        repository.deleteClaim(claimId);
+        Claim claim = new Claim();
+        claim.setId(claimId);
+        claim.setStatus(Status.DELETED);
+        repository.updateClaim(claim);
     }
 
     @Override

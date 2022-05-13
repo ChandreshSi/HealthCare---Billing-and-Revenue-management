@@ -49,6 +49,8 @@ paths:
       responses:
         "405":
           description: "Invalid input"
+        "404":
+          description: "Not found"
         "200":
           description: "successful operation"
           schema:
